@@ -63,7 +63,7 @@ public class Engine {
         ArrayList<Hallway> listOfHallways = new ArrayList<>();
 
 
-        double numOfRooms = r.nextInt(HEIGHT / 2);
+        double numOfRooms = r.nextInt(HEIGHT / 2) + 1;
 
         for (int i = 0; i < numOfRooms; i++) {
             double height = r.nextInt(HEIGHT / 4) + 1;
