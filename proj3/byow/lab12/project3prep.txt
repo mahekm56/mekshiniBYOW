@@ -1,0 +1,30 @@
+Q: Can you think of an analogy between the process of tesselating hexagons and randomly generating a world using rooms and hallways? 
+What is the hexagon and what is the tesselation on the Project 3 side?
+
+A: They are similar as in they are both like a video game. There are many ways to get to different spots and solutions, like choosing random hallways leading to random rooms that eventually lead to the same solution. 
+
+-----
+Q: If you were to start working on world generation, what kind of method would you think of writing first? 
+Think back to the lab and the process used to eventually get to tesselating hexagons.
+
+A: I would start with a method similar to depth first search. First, I would look to connected structures and continue until one complete side before progressing to other sides of the world. 
+
+-----
+Q: What distinguishes a hallway from a room? How are they similar?
+
+A: Rooms can have any shape. Hallways must be straight (with turns) and are rectangles. They are similar because they have walls and are randomly located. 
+
+-----
+Q: For tesselating hexagons, one of the hardest parts is figuring out where to place each hexagon/how to easily place hexagons on screen in an algorithmic way. 
+After looking at your own implemention, consider the implementation provided near the end of the lab. 
+How did your implementation differ from the given one? What lessons can be learned from it?
+
+A: My code is less efficient because instead of keeping track of only two points of a hexagon, I kept track of five points. A lesson that can be learned is to minimize wasteful memory and code in order to make the program as concise and efficient as possible. 
+
+-----
+Q: Consider an algorithm for placing rooms and hallways on your map. 
+Ideally, consider many algorithms and think about what makes some easier or harder to implement. Try and bring those ideas together into a single simple algorithm which accomplishes the task. 
+In general, algorithms with as few edge cases as possible are better algorithms.
+
+A:Randomly place floor tiles along the world. If there is a cluster of floor tiles, add walls to make rooms. Then, use floor tiles to connect the rooms. 
+
