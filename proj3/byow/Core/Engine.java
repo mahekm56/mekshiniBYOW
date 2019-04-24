@@ -66,16 +66,16 @@ public class Engine {
         double numOfRooms = r.nextInt(HEIGHT / 2);
 
         for (int i = 0; i < numOfRooms; i++) {
-            double height = r.nextInt(HEIGHT / 4) +1 ;
+            double height = r.nextInt(HEIGHT / 4) + 1;
             double width = r.nextInt(WIDTH / 4) + 1;
-            double x = r.nextInt(WIDTH - (int) width-1);
+            double x = r.nextInt(WIDTH - (int) width - 1);
             double y = r.nextInt(HEIGHT - (int) height - 1);
             Point p = new Point((int) x, (int) y);
             Room room = new Room(p, (int) height, (int) width);
             listOfRooms.add(room);
             listOfLocs.roomPoints.add(p);
             for (int x1 = (int) x; x1 < x + width; x1++) {
-                for (int y1 = (int) y; y1 < y + height ; y1++) {
+                for (int y1 = (int) y; y1 < y + height; y1++) {
                     world[x1][y1] = Tileset.FLOOR;
                 }
             }
@@ -85,44 +85,102 @@ public class Engine {
         for (int i = 0; i < numOfRooms - 1; i++) {
             Room curr = listOfRooms.get(i);
             Room next = listOfRooms.get(i + 1);
-            Room minx;
-            Room maxx;
-            if (Math.max(curr.p.x, next.p.x) == curr.p.x) {
-                maxx = curr;
-                minx = next;
-            } else {
-                maxx = next;
-                minx = curr;
-            }
-            int count = 0;
-            for (int x = minx.p.x; x < maxx.p.x; x++) {
-                world[x][curr.p.y] = Tileset.FLOOR;
-                count++;
-            }
-            Point nextP = new Point(minx.p.x + 1, minx.p.y);
 
-            Hallway hall = new Hallway(nextP, count);
-            listOfHallways.add(hall);
-            listOfLocs.hallwayPoints.add(hall.p);
+            if ((curr.p.y + curr.height == next.p.y && curr.p.x == next.p.x)
+                    ||
+                    (next.p.y + next.height == curr.p.y && curr.p.x == next.p.x)) {
+                break;
+            }
 
-            Room miny;
-            Room maxy;
-            if (Math.max(curr.p.y, next.p.y) == curr.p.y) {
-                maxy = curr;
-                miny = next;
+            if ((curr.p.x + curr.width == next.p.x && curr.p.y == next.p.y)
+                    ||
+                    (next.p.x + next.width == curr.p.x && curr.p.y == next.p.y)) {
+                break;
+            }
+            int count;
+
+            if (curr.p.x == next.p.x) {
+                Room miny;
+                Room maxy;
+                if (Math.max(curr.p.y, next.p.y) == curr.p.y) {
+                    maxy = curr;
+                    miny = next;
+                } else {
+                    maxy = next;
+                    miny = curr;
+                }
+                count = 0;
+                for (int y = miny.p.y; y < maxy.p.y; y++) {
+                    world[curr.p.x][y] = Tileset.FLOOR;
+                    count++;
+                }
+                Point newP = new Point(curr.p.x, maxy.p.y - 1);
+                Hallway hall2 = new Hallway(newP, count);
+                listOfHallways.add(hall2);
+                listOfLocs.hallwayPoints.add(hall2.p);
+
+            } else if (curr.p.y == next.p.y) {
+                Room minx;
+                Room maxx;
+                if (Math.max(curr.p.x, next.p.x) == curr.p.x) {
+                    maxx = curr;
+                    minx = next;
+                } else {
+                    maxx = next;
+                    minx = curr;
+                }
+                count = 0;
+                for (int x = minx.p.x; x < maxx.p.x; x++) {
+                    world[x][curr.p.y] = Tileset.FLOOR;
+                    count++;
+                }
+                Point nextP = new Point(minx.p.x + 1, curr.p.y);
+
+                Hallway hall = new Hallway(nextP, count);
+                listOfHallways.add(hall);
+                listOfLocs.hallwayPoints.add(hall.p);
             } else {
-                maxy = next;
-                miny = curr;
+                Room minx;
+                Room maxx;
+                if (Math.max(curr.p.x, next.p.x) == curr.p.x) {
+                    maxx = curr;
+                    minx = next;
+                } else {
+                    maxx = next;
+                    minx = curr;
+                }
+                count = 0;
+                for (int x = minx.p.x; x < maxx.p.x; x++) {
+                    world[x][curr.p.y] = Tileset.FLOOR;
+                    count++;
+                }
+                Point nextP = new Point(minx.p.x + 1, minx.p.y);
+
+                Hallway hall = new Hallway(nextP, count);
+                listOfHallways.add(hall);
+                listOfLocs.hallwayPoints.add(hall.p);
+
+                Room miny;
+                Room maxy;
+                if (Math.max(curr.p.y, next.p.y) == curr.p.y) {
+                    maxy = curr;
+                    miny = next;
+                } else {
+                    maxy = next;
+                    miny = curr;
+                }
+                count = 0;
+                for (int y = miny.p.y; y < maxy.p.y; y++) {
+                    world[maxx.p.x - 1][y] = Tileset.FLOOR;
+                    count++;
+                }
+                Point newP = new Point(maxy.p.y - 1, maxx.p.x - 1);
+                Hallway hall2 = new Hallway(newP, count);
+                listOfHallways.add(hall2);
+                listOfLocs.hallwayPoints.add(hall2.p);
             }
-            count = 0;
-            for (int y = miny.p.y; y < maxy.p.y; y++) {
-                world[maxx.p.x - 1][y] = Tileset.FLOOR;
-                count++;
-            }
-            Point newP = new Point(maxy.p.y - 1, maxx.p.x - 1);
-            Hallway hall2 = new Hallway(newP, count);
-            listOfHallways.add(hall2);
-            listOfLocs.hallwayPoints.add(hall2.p);
+
+
         }
         return world;
     }
