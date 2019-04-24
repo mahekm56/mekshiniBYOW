@@ -12,8 +12,8 @@ import java.awt.Point;
 public class Engine {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 80;
-    public static final int HEIGHT = 50;
+    public static final int WIDTH = 10;
+    public static final int HEIGHT = 10;
 
     TETile[][] world = new TETile[WIDTH][HEIGHT];
 
@@ -50,13 +50,11 @@ public class Engine {
     // @Source - lab12
     public TETile[][] interactWithInputString(String input) {
 
-
         for (int i = 0; i < world.length; i++) {
             for (int j = 0; j < world[0].length; j++) {
                 world[i][j] = Tileset.NOTHING;
             }
         }
-
         String seed = input.substring(1, input.length() - 2);
         Long seedVal = Long.parseLong(seed);
         Random r = new Random(seedVal);
@@ -66,23 +64,18 @@ public class Engine {
 
 
         double numOfRooms = r.nextInt(HEIGHT / 2);
-        //RandomUtils.uniform(r);
-        for (int i = 0; i < numOfRooms; i++) {
 
-            double x = r.nextInt(WIDTH);
-            //RandomUtils.uniform(r);
-            double y = r.nextInt(HEIGHT);
-            //RandomUtils.uniform(r);
-            double height = r.nextInt(HEIGHT / 4);
-            //RandomUtils.uniform(r);
-            double width = r.nextInt(WIDTH / 4);
-            //RandomUtils.uniform(r);
+        for (int i = 0; i < numOfRooms; i++) {
+            double height = r.nextInt(HEIGHT / 4) +1 ;
+            double width = r.nextInt(WIDTH / 4) + 1;
+            double x = r.nextInt(WIDTH - (int) width-1);
+            double y = r.nextInt(HEIGHT - (int) height - 1);
             Point p = new Point((int) x, (int) y);
             Room room = new Room(p, (int) height, (int) width);
             listOfRooms.add(room);
             listOfLocs.roomPoints.add(p);
-            for (int x1 = (int) x; x1 < x1 + width - 1; x1++) {
-                for (int y1 = (int) y; y1 < y1 + height; y1++) {
+            for (int x1 = (int) x; x1 < x + width - 1; x1++) {
+                for (int y1 = (int) y; y1 < y + height - 1; y1++) {
                     world[x1][y1] = Tileset.FLOOR;
                 }
             }
@@ -90,7 +83,6 @@ public class Engine {
         }
 
         for (int i = 0; i < numOfRooms - 1; i++) {
-            //creating hallways between rooms
             Room curr = listOfRooms.get(i);
             Room next = listOfRooms.get(i + 1);
             Room minx;
@@ -113,7 +105,6 @@ public class Engine {
             listOfHallways.add(hall);
             listOfLocs.hallwayPoints.add(hall.p);
 
-            // first x hallway
             Room miny;
             Room maxy;
             if (Math.max(curr.p.y, next.p.y) == curr.p.y) {
@@ -133,7 +124,6 @@ public class Engine {
             listOfHallways.add(hall2);
             listOfLocs.hallwayPoints.add(hall2.p);
         }
-
         return world;
     }
 
