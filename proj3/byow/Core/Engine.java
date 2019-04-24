@@ -74,8 +74,8 @@ public class Engine {
             Room room = new Room(p, (int) height, (int) width);
             listOfRooms.add(room);
             listOfLocs.roomPoints.add(p);
-            for (int x1 = (int) x; x1 < x + width - 1; x1++) {
-                for (int y1 = (int) y; y1 < y + height - 1; y1++) {
+            for (int x1 = (int) x; x1 < x + width; x1++) {
+                for (int y1 = (int) y; y1 < y + height ; y1++) {
                     world[x1][y1] = Tileset.FLOOR;
                 }
             }
