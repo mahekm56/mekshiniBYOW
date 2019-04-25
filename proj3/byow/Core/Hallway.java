@@ -1,12 +1,14 @@
 package byow.Core;
 
-import java.awt.*;
+import java.awt.Point;
 
 public class Hallway {
     Point p;
     int length;
-    public Hallway(Point p, int l) {
+    boolean horizontal;
+    public Hallway(Point p, int l, boolean h) {
         this.length = l;
         this.p = p;
+        this.horizontal = h;
     }
 }
