@@ -11,8 +11,8 @@ import java.awt.Point;
 
 public class Engine {
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 10;
-    public static final int HEIGHT = 10;
+    public static final int WIDTH = 50;
+    public static final int HEIGHT = 50;
     TERenderer ter = new TERenderer();
     Locations listOfLocs = new Locations();
     ArrayList<Room> listOfRooms = new ArrayList<>();
@@ -62,51 +62,52 @@ public class Engine {
         Long seedVal = Long.parseLong(seed);
         Random r = new Random(seedVal);
 
-        int numOfRooms = r.nextInt(HEIGHT / 2) + 1;
-        createRooms(numOfRooms, r);
-        createConnectingHallways(numOfRooms);
+        int numOfRooms = r.nextInt(15 * HEIGHT / 16) + 1;
+        makeRooms(numOfRooms, r);
+        makeHallways(numOfRooms);
+        addHallwayWalls();
 
         return world;
     }
 
-
-    private void createRooms(int numRooms, Random rand) {
+    private void makeRooms(int numRooms, Random rand) {
         for (int i = 0; i < numRooms; i++) {
-            double height = rand.nextInt(HEIGHT / 4) + 1;
-            double width = rand.nextInt(WIDTH / 4) + 1;
-            double x = rand.nextInt(WIDTH - (int) width - 1);
-            double y = rand.nextInt(HEIGHT - (int) height - 1);
-            Point p = new Point((int) x, (int) y);
-            Room room = new Room(p, (int) height, (int) width);
+            int height = rand.nextInt(HEIGHT / 8) + 1;
+            int width = rand.nextInt(WIDTH / 8) + 1;
+            int x = rand.nextInt(WIDTH - (int) width - 2) + 1;
+            int y = rand.nextInt(HEIGHT - (int) height - 2) + 1;
+            Point p = new Point(x, y);
+            Room room = new Room(p, height, width);
             listOfRooms.add(room);
             listOfLocs.roomPoints.add(p);
-            for (int x1 = (int) x; x1 < x + width; x1++) {
-                for (int y1 = (int) y; y1 < y + height; y1++) {
+            for (int x1 = x; x1 < x + width; x1++) {
+                for (int y1 = y; y1 < y + height; y1++) {
                     world[x1][y1] = Tileset.FLOOR;
                 }
             }
 
+            for (int xval = Math.max(0, x - 1); xval <= x + width; xval++) {
+                world[xval][y + height] = Tileset.WALL;
+                if (y == 0) {
+                    break;
+                }
+                world[xval][y - 1] = Tileset.WALL;
+
+            }
+            for (int yval = Math.max(0, y - 1); yval <= y + height; yval++) {
+                world[x + width][yval] = Tileset.WALL;
+                if (x == 0) {
+                    break;
+                }
+                world[x - 1][yval] = Tileset.WALL;
+            }
         }
     }
 
-    private void createConnectingHallways(int numRooms) {
+    private void makeHallways(int numRooms) {
         for (int i = 0; i < numRooms - 1; i++) {
             Room curr = listOfRooms.get(i);
             Room next = listOfRooms.get(i + 1);
-
-            if ((curr.p.y + curr.height == next.p.y && curr.p.x == next.p.x)
-                    ||
-                    (next.p.y + next.height == curr.p.y && curr.p.x == next.p.x)) {
-                break;
-            }
-
-            if ((curr.p.x + curr.width == next.p.x && curr.p.y == next.p.y)
-                    ||
-                    (next.p.x + next.width == curr.p.x && curr.p.y == next.p.y)) {
-                break;
-            }
-            int count;
-
             Room minx;
             Room maxx;
             if (curr.p.x + curr.width < next.p.x) {
@@ -116,18 +117,19 @@ public class Engine {
                 minx = next;
                 maxx = curr;
             }
-            count = 0;
-            for (int x = minx.p.x + minx.width; x <= maxx.p.x; x++) {
+            int count = 0;
+            for (int x = minx.p.x + minx.width - 1; x <= maxx.p.x + 1; x++) {
                 world[x][minx.p.y] = Tileset.FLOOR;
                 count++;
             }
-            Point nextP = new Point(minx.p.x + 1, minx.p.y);
-            Hallway hall = new Hallway(nextP, count, true);
-            listOfHallways.add(hall);
-            listOfLocs.hallwayPoints.add(hall.p);
+            Point p = new Point(minx.p.x + minx.width, minx.p.y);
+            Hallway h = new Hallway(p, count, true);
+            listOfLocs.hallwayPoints.add(p);
+            listOfHallways.add(h);
+
             Room miny;
             Room maxy;
-            if (curr.p.y < next.p.y - next.height) {
+            if (curr.p.y + curr.height < next.p.y) {
                 miny = curr;
                 maxy = next;
             } else {
@@ -135,15 +137,59 @@ public class Engine {
                 maxy = curr;
             }
             count = 0;
-            for (int y = miny.p.y + 1; y <= maxy.p.y - maxy.height; y++) {
-                world[miny.p.x][y] = Tileset.FLOOR;
-                count++;
-            }
-            Point newP = new Point(maxy.p.y - 1, maxx.p.x - 1);
-            Hallway hall2 = new Hallway(newP, count, false);
-            listOfHallways.add(hall2);
-            listOfLocs.hallwayPoints.add(hall2.p);
+            for (int y = miny.p.y + 1; y < maxy.p.y; y++) {
+                if (maxy.p.x != 0) {
+                    world[maxy.p.x][y] = Tileset.FLOOR;
+                    count++;
+                }
 
+            }
+            Point po = new Point(maxy.p.x, miny.p.y + 1);
+            Hallway ha = new Hallway(po, count, false);
+            listOfLocs.hallwayPoints.add(po);
+            listOfHallways.add(ha);
+        }
+    }
+
+    private void addHallwayWalls() {
+        for (Hallway h : listOfHallways) {
+            if (h.horizontal) {
+                for (int x = h.p.x; x <= h.p.x + h.length - 1; x++) {
+                    if (world[x][h.p.y + 1] == Tileset.NOTHING) {
+                        world[x][h.p.y + 1] = Tileset.WALL;
+                    }
+                    if (h.p.y != 0) {
+                        if (world[x][h.p.y - 1] == Tileset.NOTHING) {
+                            world[x][h.p.y - 1] = Tileset.WALL;
+                        }
+                    }
+
+                }
+                if (world[h.p.x + h.length][h.p.y] == Tileset.NOTHING) {
+                    world[h.p.x + h.length - 1][h.p.y] = Tileset.WALL;
+                }
+            } else {
+                //System.out.println(h.length);
+                for (int y = h.p.y - 2; y < h.p.y + h.length; y++) {
+
+                    if (world[h.p.x + 1][y].equals(Tileset.NOTHING)) {
+                        world[h.p.x + 1][y] = Tileset.WALL;
+
+                    }
+                    if (h.p.x != 0) {
+                        if (world[h.p.x - 1][y].equals(Tileset.NOTHING)) {
+                            world[h.p.x - 1][y] = Tileset.WALL;
+
+                        }
+
+                    }
+
+                }
+                if (world[h.p.x][h.p.y - 1] == Tileset.NOTHING) {
+                    world[h.p.x][h.p.y - 1] = Tileset.WALL;
+
+                }
+            }
         }
     }
 
