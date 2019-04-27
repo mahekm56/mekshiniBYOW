@@ -165,7 +165,7 @@ public class Engine {
                     }
 
                 }
-                if (world[h.p.x + h.length][h.p.y] == Tileset.NOTHING) {
+                if (world[h.p.x + h.length - 1][h.p.y] == Tileset.NOTHING) {
                     world[h.p.x + h.length - 1][h.p.y] = Tileset.WALL;
                 }
             } else {
