@@ -3,14 +3,16 @@ package byow.Core;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
-import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+
 import edu.princeton.cs.introcs.StdDraw;
 
-import java.awt.*;
-import java.awt.event.HierarchyBoundsAdapter;
+import java.awt.Point;
+import java.awt.Font;
+import java.awt.Color;
+
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
+
 
 public class Engine {
     /* Feel free to change the width and height. */
@@ -27,6 +29,7 @@ public class Engine {
     Point avatarLocation;
     Boolean win = true;
     Point flowerLocation;
+    String inputSeed;
 
 
     /**
@@ -101,7 +104,7 @@ public class Engine {
 
     private void startCommands() {
         while (true) {
-            if (! StdDraw.hasNextKeyTyped()) {
+            if (!StdDraw.hasNextKeyTyped()) {
                 continue;
             }
 
@@ -131,7 +134,6 @@ public class Engine {
     }
 
 
-
     /**
      * Method used for autograding and testing your code. The input string will be a series
      * of characters (for example, "n123sswwdasdassadwas", "n123sss:q", "lwww". The engine should
@@ -157,19 +159,35 @@ public class Engine {
     // @Source - lab12
     public TETile[][] interactWithInputString(String input) {
         makeWorld();
-        String seed = input.substring(1, input.indexOf('s'));
-        Long seedVal = Long.parseLong(seed);
-        String commands = input.substring(input.indexOf('s') + 1);
-        Random r = new Random(seedVal);
-        int numOfRooms = r.nextInt(7 * HEIGHT / 8) + 1;
-        create(numOfRooms, r);
-        createWalls();
-        world[listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)][listOfRooms.get(0).p.y + ((listOfRooms.get(0).height) / 2)] = Tileset.AVATAR;
-        world[listOfRooms.get(listOfRooms.size()-1).p.x][listOfRooms.get(listOfRooms.size()-1).p.y] = Tileset.FLOWER;
-        avatarLocation = new Point((listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)), listOfRooms.get(0).p.y + ((listOfRooms.get(0).height) / 2));
-        flowerLocation = new Point(listOfRooms.get(listOfRooms.size()-1).p.x, listOfRooms.get(listOfRooms.size()-1).p.y);
-        moveCharacters(commands);
+        if (checkForLoad(input)) {
+            interactWithInputString(inputSeed);
+        } else {
+            inputSeed = input;
+            String seed = input.substring(1, input.indexOf('s'));
+            Long seedVal = Long.parseLong(seed);
+            String commands = input.substring(input.indexOf('s') + 1);
+            Random r = new Random(seedVal);
+            int numOfRooms = r.nextInt(7 * HEIGHT / 8) + 1;
+            create(numOfRooms, r);
+            createWalls();
+            world[listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)][listOfRooms.get(0).p.y
+                    + ((listOfRooms.get(0).height) / 2)] = Tileset.AVATAR;
+            world[listOfRooms.get(listOfRooms.size() - 1).p.x]
+                    [listOfRooms.get(listOfRooms.size() - 1).p.y] = Tileset.FLOWER;
+            avatarLocation = new Point((listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)),
+                    listOfRooms.get(0).p.y + ((listOfRooms.get(0).height) / 2));
+            flowerLocation = new Point(listOfRooms.get(listOfRooms.size() - 1).p.x,
+                    listOfRooms.get(listOfRooms.size() - 1).p.y);
+            moveCharacters(commands);
+        }
         return world;
+    }
+
+    private boolean checkForLoad(String i) {
+        if (i.substring(0, 1).equals('l') || i.substring(0, 1).equals('L')) {
+            return true;
+        }
+        return false;
     }
 
 
@@ -353,7 +371,8 @@ public class Engine {
 
     private Point moveUp(Point loc, TETile t) {
         Point p = new Point(-1, 0);
-        if ((world[loc.x][loc.y + 1]).equals(Tileset.FLOOR) || (world[loc.x][loc.y + 1]).equals(Tileset.AVATAR)) {
+        if ((world[loc.x][loc.y + 1]).equals(Tileset.FLOOR)
+                || (world[loc.x][loc.y + 1]).equals(Tileset.AVATAR)) {
             world[loc.x][loc.y] = Tileset.FLOOR;
             world[loc.x][loc.y + 1] = t;
             p = new Point(loc.x, loc.y + 1);
@@ -365,7 +384,8 @@ public class Engine {
 
     private Point moveLeft(Point loc, TETile t) {
         Point p = new Point(-1, 0);
-        if ((world[loc.x - 1][loc.y]).equals(Tileset.FLOOR) || (world[loc.x - 1][loc.y]).equals(Tileset.AVATAR)) {
+        if ((world[loc.x - 1][loc.y]).equals(Tileset.FLOOR)
+                || (world[loc.x - 1][loc.y]).equals(Tileset.AVATAR)) {
             world[loc.x][loc.y] = Tileset.FLOOR;
             world[loc.x - 1][loc.y] = t;
             p = new Point(loc.x - 1, loc.y);
@@ -377,7 +397,8 @@ public class Engine {
 
     private Point moveDown(Point loc, TETile t) {
         Point p = new Point(-1, 0);
-        if ((world[loc.x][loc.y - 1]).equals(Tileset.FLOOR)|| (world[loc.x][loc.y - 1]).equals(Tileset.AVATAR)) {
+        if ((world[loc.x][loc.y - 1]).equals(Tileset.FLOOR)
+                || (world[loc.x][loc.y - 1]).equals(Tileset.AVATAR)) {
             world[loc.x][loc.y] = Tileset.FLOOR;
             world[loc.x][loc.y - 1] = t;
             p = new Point(loc.x, loc.y - 1);
@@ -388,7 +409,8 @@ public class Engine {
 
     private Point moveRight(Point loc, TETile t) {
         Point p = new Point(-1, 0);
-        if ((world[loc.x + 1][loc.y]).equals(Tileset.FLOOR) || (world[loc.x + 1][loc.y]).equals(Tileset.AVATAR)) {
+        if ((world[loc.x + 1][loc.y]).equals(Tileset.FLOOR)
+                || (world[loc.x + 1][loc.y]).equals(Tileset.AVATAR)) {
             world[loc.x][loc.y] = Tileset.FLOOR;
             world[loc.x + 1][loc.y] = t;
             p = new Point(loc.x + 1, loc.y);
@@ -398,14 +420,12 @@ public class Engine {
     }
 
     private void chaseDirection() {
-
         if (win) {
             Point i;
             if ((avatarLocation.x == flowerLocation.x) && (avatarLocation.y == flowerLocation.x)) {
                 win = false;
-
-            } else if ((avatarLocation.x > flowerLocation.x) && (avatarLocation.y > flowerLocation.y)) {
-
+            } else if ((avatarLocation.x > flowerLocation.x)
+                    && (avatarLocation.y > flowerLocation.y)) {
                 i = moveRight(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
@@ -414,11 +434,8 @@ public class Engine {
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
-
-
-            } else if ((avatarLocation.x > flowerLocation.x) && (avatarLocation.y < flowerLocation.y)) {
-
+            } else if ((avatarLocation.x > flowerLocation.x)
+                    && (avatarLocation.y < flowerLocation.y)) {
                 i = moveRight(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
@@ -427,9 +444,8 @@ public class Engine {
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
-            } else if ((avatarLocation.x < flowerLocation.x) && (avatarLocation.y > flowerLocation.y)) {
-
+            } else if ((avatarLocation.x < flowerLocation.x)
+                    && (avatarLocation.y > flowerLocation.y)) {
                 i = moveLeft(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
@@ -438,11 +454,8 @@ public class Engine {
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
-
-            } else if ((avatarLocation.x < flowerLocation.x) && (avatarLocation.y < flowerLocation.y)) {
-
-
+            } else if ((avatarLocation.x < flowerLocation.x)
+                    && (avatarLocation.y < flowerLocation.y)) {
                 i = moveLeft(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
@@ -451,61 +464,45 @@ public class Engine {
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
-
             } else if ((avatarLocation.x < flowerLocation.x)) {
-
                 i = moveLeft(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
-
             } else if ((avatarLocation.x > flowerLocation.x)) {
-
                 i = moveRight(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
-
             } else if ((avatarLocation.y < flowerLocation.y)) {
                 i = moveDown(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
-
-            }
-            else if ((avatarLocation.y > flowerLocation.y)) {
-
+            } else if ((avatarLocation.y > flowerLocation.y)) {
                 i = moveUp(flowerLocation, Tileset.FLOWER);
                 if (i.x != -1) {
                     flowerLocation = i;
                 }
-
             }
-
         }
     }
 
     /**private void winOrLose(boolean winLose) {
-        PointerInfo cursor = MouseInfo.getPointerInfo();
-        Point floor_or_wall = cursor.getLocation();
-        System.out.print(floor_or_wall);
-        while (winLose) {
-            if (world[floor_or_wall.x][floor_or_wall.y].equals(Tileset.WALL)) {
-                //display wall
-            } else if (world[floor_or_wall.x][floor_or_wall.y].equals(Tileset.FLOOR)) {
-                //display floor
-            }
-        }
-        if (!(winLose)) {
-            //we have to quit game and display game over
-        }
-    }*/
-
-
+     PointerInfo cursor = MouseInfo.getPointerInfo();
+     Point floor_or_wall = cursor.getLocation();
+     System.out.print(floor_or_wall);
+     while (winLose) {
+     if (world[floor_or_wall.x][floor_or_wall.y].equals(Tileset.WALL)) {
+     //display wall
+     } else if (world[floor_or_wall.x][floor_or_wall.y].equals(Tileset.FLOOR)) {
+     //display floor
+     }
+     }
+     if (!(winLose)) {
+     //we have to quit game and display game over
+     }
+     }*/
 
 
 }
