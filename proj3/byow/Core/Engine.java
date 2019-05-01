@@ -79,7 +79,7 @@ public class Engine {
                             String i = seed + "s";
                             world = interactWithInputString(i);
                             ter.initialize(WIDTH, HEIGHT);
-                            ter.renderFrame(world);
+                            //ter.renderFrame(world);
                             startCommands();
                         } else {
                             seedString += inp;
@@ -109,22 +109,22 @@ public class Engine {
             if (i == 'W' || i == 'w') {
                 //toInsert = toInsert + 'w';
                 avatarLocation = moveUp(avatarLocation, Tileset.AVATAR);
-                ter.renderFrame(world);
+                //ter.renderFrame(world);
             }
             if (i == 'a' || i == 'A') {
                 //toInsert = toInsert + 'a';
                 avatarLocation = moveLeft(avatarLocation, Tileset.AVATAR);
-                ter.renderFrame(world);
+                //ter.renderFrame(world);
             }
             if (i == 's' || i == 'S') {
                 //toInsert = toInsert + 'w';
                 avatarLocation = moveDown(avatarLocation, Tileset.AVATAR);
-                ter.renderFrame(world);
+                //ter.renderFrame(world);
             }
             if (i == 'd' || i == 'D') {
                 //toInsert = toInsert + 'w';
                 avatarLocation = moveRight(avatarLocation, Tileset.AVATAR);
-                ter.renderFrame(world);
+                //ter.renderFrame(world);
             }
         }
 
@@ -358,7 +358,7 @@ public class Engine {
             world[loc.x][loc.y + 1] = t;
             p = new Point(loc.x, loc.y + 1);
         }
-        ter.renderFrame(world);
+        //ter.renderFrame(world);
         return p;
 
     }
@@ -370,7 +370,7 @@ public class Engine {
             world[loc.x - 1][loc.y] = t;
             p = new Point(loc.x - 1, loc.y);
         }
-        ter.renderFrame(world);
+        //ter.renderFrame(world);
         return p;
 
     }
@@ -382,7 +382,7 @@ public class Engine {
             world[loc.x][loc.y - 1] = t;
             p = new Point(loc.x, loc.y - 1);
         }
-        ter.renderFrame(world);
+        //ter.renderFrame(world);
         return p;
     }
 
@@ -393,7 +393,7 @@ public class Engine {
             world[loc.x + 1][loc.y] = t;
             p = new Point(loc.x + 1, loc.y);
         }
-        ter.renderFrame(world);
+        //ter.renderFrame(world);
         return p;
     }
 
