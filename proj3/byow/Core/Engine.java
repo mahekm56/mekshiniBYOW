@@ -40,7 +40,6 @@ public class Engine {
     String inputSeed;
 
 
-
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
      * including inputs from the main menu.
@@ -100,28 +99,26 @@ public class Engine {
                         }
                     }
                 }
-                        if (input == 'l' || input == 'L') {
-                            toInsert = loadWorld();
-                            interactWithInputString(toInsert);
-                            ter.renderFrame(world);
-                            startCommands();
-                        }
-                        /**if (input == 'q' || input == 'Q') {
-
-                            saveWorld(toInsert);
-                            //System.out.println("hi");
-                            makeWorld();
-                            ter.renderFrame(world);
-                           // System.out.println("hi1");
-                            System.exit(0);
-                            //System.out.println("hi2");
-                            break;
-                        }*/
-
-                    }
+                if (input == 'l' || input == 'L') {
+                    toInsert = loadWorld();
+                    interactWithInputString(toInsert);
+                    ter.renderFrame(world);
+                    startCommands();
                 }
+                /**if (input == 'q' || input == 'Q') {
 
+                 saveWorld(toInsert);
+                 //System.out.println("hi");
+                 makeWorld();
+                 ter.renderFrame(world);
+                 // System.out.println("hi1");
+                 System.exit(0);
+                 //System.out.println("hi2");
+                 break;
+                 }*/
 
+            }
+        }
 
 
     }
@@ -157,8 +154,7 @@ public class Engine {
                     ter.renderFrame(world);
                 }
 
-            }
-            else if (i == 'a' || i == 'A') {
+            } else if (i == 'a' || i == 'A') {
                 toInsert += 'a';
                 x = moveLeft(avatarLocation, Tileset.AVATAR);
                 if (x.x != -1) {
@@ -166,8 +162,7 @@ public class Engine {
                     ter.renderFrame(world);
                 }
 
-            }
-            else if (i == 's' || i == 'S') {
+            } else if (i == 's' || i == 'S') {
                 toInsert += 's';
                 x = moveDown(avatarLocation, Tileset.AVATAR);
                 if (x.x != -1) {
@@ -175,17 +170,14 @@ public class Engine {
                     ter.renderFrame(world);
                 }
 
-            }
-            else if (i == 'd' || i == 'D') {
+            } else if (i == 'd' || i == 'D') {
                 toInsert += 'd';
                 x = moveRight(avatarLocation, Tileset.AVATAR);
                 if (x.x != -1) {
                     avatarLocation = x;
                     ter.renderFrame(world);
                 }
-            }
-
-            else if (i == 'q') {
+            } else if (i == 'q') {
                 saveWorld(toInsert);
                 //System.out.println(loadWorld());
                 //System.out.println("hi");
@@ -225,10 +217,10 @@ public class Engine {
     // @Source - lab12
     public TETile[][] interactWithInputString(String input) {
         makeWorld();
-        //if (checkForLoad(input)) {
-           // interactWithInputString(inputSeed + input.substring(1));
-        //} else {
-            inputSeed = input;
+        if (checkForLoad(input)) {
+            interactWithInputString(loadWorld() + input.substring(1));
+        } else {
+            //inputSeed = input;
 
             String seed = input.substring(1, input.indexOf('s'));
             Long seedVal = Long.parseLong(seed);
@@ -240,18 +232,20 @@ public class Engine {
             world[listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)][listOfRooms.get(0).p.y
                     + ((listOfRooms.get(0).height) / 2)] = Tileset.AVATAR;
             //world[listOfRooms.get(listOfRooms.size() - 1).p.x]
-              //      [listOfRooms.get(listOfRooms.size() - 1).p.y] = Tileset.FLOWER;
+            //      [listOfRooms.get(listOfRooms.size() - 1).p.y] = Tileset.FLOWER;
             avatarLocation = new Point((listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)),
                     listOfRooms.get(0).p.y + ((listOfRooms.get(0).height) / 2));
             //flowerLocation = new Point(listOfRooms.get(listOfRooms.size() - 1).p.x,
-              //      listOfRooms.get(listOfRooms.size() - 1).p.y);
+            //      listOfRooms.get(listOfRooms.size() - 1).p.y);
             moveCharacters(commands);
-        //}
+            saveWorld(input);
+        }
         return world;
     }
 
     private boolean checkForLoad(String i) {
-        if (i.substring(0, 1).equals('l') || i.substring(0, 1).equals('L')) {
+        String i2 = i.substring(0, 1);
+        if (i2.equals("l") || i2.equals("L")) {
             return true;
         }
         return false;
@@ -485,8 +479,9 @@ public class Engine {
         //ter.renderFrame(world);
         return p;
     }
+
     // @Source SaveDemo
-    private String loadWorld(){
+    private String loadWorld() {
         File f = new File("./previousCodes.txt");
         if (f.exists()) {
             try {
@@ -510,6 +505,7 @@ public class Engine {
         return "";
 
     }
+
     // @Source SaveDemo
     private static void saveWorld(String seedv) {
         File f = new File("./previousCodes.txt");
@@ -520,7 +516,7 @@ public class Engine {
             FileOutputStream fs = new FileOutputStream(f);
             ObjectOutputStream os = new ObjectOutputStream(fs);
             os.writeObject(seedv);
-        }  catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.out.println("file not found");
             System.exit(0);
         } catch (IOException e) {
@@ -530,73 +526,73 @@ public class Engine {
     }
 
     /**private void chaseDirection() {
-        if (win) {
-            Point i;
-            if ((avatarLocation.x == flowerLocation.x) && (avatarLocation.y == flowerLocation.x)) {
-                win = false;
-            } else if ((avatarLocation.x > flowerLocation.x)
-                    && (avatarLocation.y > flowerLocation.y)) {
-                i = moveRight(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-                i = moveUp(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            } else if ((avatarLocation.x > flowerLocation.x)
-                    && (avatarLocation.y < flowerLocation.y)) {
-                i = moveRight(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-                i = moveDown(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            } else if ((avatarLocation.x < flowerLocation.x)
-                    && (avatarLocation.y > flowerLocation.y)) {
-                i = moveLeft(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-                i = moveUp(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            } else if ((avatarLocation.x < flowerLocation.x)
-                    && (avatarLocation.y < flowerLocation.y)) {
-                i = moveLeft(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-                i = moveDown(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            } else if ((avatarLocation.x < flowerLocation.x)) {
-                i = moveLeft(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            } else if ((avatarLocation.x > flowerLocation.x)) {
-                i = moveRight(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            } else if ((avatarLocation.y < flowerLocation.y)) {
-                i = moveDown(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            } else if ((avatarLocation.y > flowerLocation.y)) {
-                i = moveUp(flowerLocation, Tileset.FLOWER);
-                if (i.x != -1) {
-                    flowerLocation = i;
-                }
-            }
-        }
-    }*/
+     if (win) {
+     Point i;
+     if ((avatarLocation.x == flowerLocation.x) && (avatarLocation.y == flowerLocation.x)) {
+     win = false;
+     } else if ((avatarLocation.x > flowerLocation.x)
+     && (avatarLocation.y > flowerLocation.y)) {
+     i = moveRight(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     i = moveUp(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     } else if ((avatarLocation.x > flowerLocation.x)
+     && (avatarLocation.y < flowerLocation.y)) {
+     i = moveRight(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     i = moveDown(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     } else if ((avatarLocation.x < flowerLocation.x)
+     && (avatarLocation.y > flowerLocation.y)) {
+     i = moveLeft(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     i = moveUp(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     } else if ((avatarLocation.x < flowerLocation.x)
+     && (avatarLocation.y < flowerLocation.y)) {
+     i = moveLeft(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     i = moveDown(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     } else if ((avatarLocation.x < flowerLocation.x)) {
+     i = moveLeft(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     } else if ((avatarLocation.x > flowerLocation.x)) {
+     i = moveRight(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     } else if ((avatarLocation.y < flowerLocation.y)) {
+     i = moveDown(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     } else if ((avatarLocation.y > flowerLocation.y)) {
+     i = moveUp(flowerLocation, Tileset.FLOWER);
+     if (i.x != -1) {
+     flowerLocation = i;
+     }
+     }
+     }
+     }*/
 
     /**private void winOrLose(boolean winLose) {
      PointerInfo cursor = MouseInfo.getPointerInfo();
