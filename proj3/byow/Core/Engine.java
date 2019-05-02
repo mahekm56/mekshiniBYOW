@@ -23,8 +23,8 @@ import java.io.ObjectOutputStream;
 
 public class Engine {
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 50;
-    public static final int HEIGHT = 50;
+    public static final int WIDTH = 80;
+    public static final int HEIGHT = 30;
     TERenderer ter = new TERenderer();
     ArrayList<Room> listOfRooms = new ArrayList<>();
     ArrayList<Hallway> listOfHallways = new ArrayList<>();
@@ -35,9 +35,12 @@ public class Engine {
     Room maxy;
     Point avatarLocation;
     Boolean win = true;
-    //Point flowerLocation;
+
     String toInsert = "";
-    String inputSeed;
+
+    String name = "";
+
+    TETile floorTile = Tileset.FLOOR;
 
 
     /**
@@ -50,24 +53,43 @@ public class Engine {
         StdDraw.setYscale(0, HEIGHT);
         createMenu();
         StdDraw.enableDoubleBuffering();
-
         while (true) {
-
             if (StdDraw.hasNextKeyTyped()) {
-
                 char input = Character.toUpperCase(StdDraw.nextKeyTyped());
+                if (input == 'v' || input == 'V') {
+                    StdDraw.enableDoubleBuffering();
+                    StdDraw.clear(Color.BLACK);
+                    StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a name: " + name);
+                    StdDraw.text(WIDTH / 2, HEIGHT * 5 / 6, "Press # to finish.");
+                    StdDraw.show();
+                    while (true) {
+                        if (StdDraw.hasNextKeyTyped()) {
+                            char next = StdDraw.nextKeyTyped();
+                            if (next == '#') {
+                                createMenu();
+                                break;
+                            } else {
+                                name += next;
+                                StdDraw.enableDoubleBuffering(); StdDraw.clear(Color.BLACK);
+                                StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a name: " + name);
+                                StdDraw.text(WIDTH / 2, HEIGHT * 5 / 6, "Press # to finish.");
+                                StdDraw.show();
+                            }
+                        }
+                    }
+                }
                 if (input == 'l' || input == 'L') {
                     toInsert = loadWorld();
+                    if (toInsert.substring(0, 1).equals("k")) {
+                        floorTile = Tileset.GRASS;
+                    }
+                    toInsert = toInsert.substring(1);
                     interactWithInputString(toInsert);
                     ter.renderFrame(world);
                     startCommands();
                 }
-
-
                 if (input == 'n' || input == 'N') {
                     toInsert += 'n';
-
-
                     StdDraw.enableDoubleBuffering();
                     StdDraw.clear(Color.BLACK);
                     StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a seed: " + toInsert);
@@ -82,18 +104,13 @@ public class Engine {
                             StdDraw.enableDoubleBuffering();
                             StdDraw.clear(Color.BLACK);
                             StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a seed: " + toInsert);
-                            StdDraw.show();
-                            interactWithInputString(toInsert);
-                            ter.renderFrame(world);
-                            startCommands();
+                            StdDraw.show(); interactWithInputString(toInsert);
+                            ter.renderFrame(world); mouseLocation(); startCommands();
                             break;
-
                         }
                         if (c != 'n' || c != 'N') {
-
                             toInsert += c;
-                            StdDraw.enableDoubleBuffering();
-                            StdDraw.clear(Color.BLACK);
+                            StdDraw.enableDoubleBuffering(); StdDraw.clear(Color.BLACK);
                             StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a seed: " + toInsert);
                             StdDraw.show();
                         }
@@ -101,27 +118,16 @@ public class Engine {
                 }
                 if (input == 'l' || input == 'L') {
                     toInsert = loadWorld();
-                    interactWithInputString(toInsert);
-                    ter.renderFrame(world);
-                    startCommands();
+                    if (toInsert.substring(0, 1).equals("k")) {
+                        floorTile = Tileset.GRASS;
+                    }
+                    toInsert = toInsert.substring(1); interactWithInputString(toInsert);
+                    ter.renderFrame(world); startCommands();
                 }
-                /**if (input == 'q' || input == 'Q') {
-
-                 saveWorld(toInsert);
-                 //System.out.println("hi");
-                 makeWorld();
-                 ter.renderFrame(world);
-                 // System.out.println("hi1");
-                 System.exit(0);
-                 //System.out.println("hi2");
-                 break;
-                 }*/
-
             }
         }
-
-
     }
+
 
     private void createMenu() {
         StdDraw.clear(new Color(0, 0, 0));
@@ -133,6 +139,7 @@ public class Engine {
         StdDraw.setPenColor(new Color(255, 255, 255));
         StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Welcome to MEKSHINI");
         StdDraw.setFont(mainM);
+        StdDraw.text(WIDTH / 2, HEIGHT * 2.5 / 10, "Press V to give your avatar a name");
         StdDraw.text(WIDTH / 2, HEIGHT * 5.5 / 10, "New Game (N)");
         StdDraw.text(WIDTH / 2, HEIGHT * 4.5 / 10, "Load Game (L)");
         StdDraw.text(WIDTH / 2, HEIGHT * 3.5 / 10, "Quit (Q)");
@@ -140,12 +147,26 @@ public class Engine {
 
     private void startCommands() {
         while (true) {
+            mouseLocation();
             if (!StdDraw.hasNextKeyTyped()) {
                 continue;
             }
 
             char i = StdDraw.nextKeyTyped();
             Point x;
+
+            if (i == 'K' || i == 'k') {
+                if (floorTile == Tileset.FLOOR) {
+                    floorTile = Tileset.GRASS;
+                } else {
+                    floorTile = Tileset.FLOOR;
+                }
+
+                interactWithInputString(toInsert);
+                ter.renderFrame(world);
+                mouseLocation();
+            }
+
             if (i == 'W' || i == 'w') {
                 toInsert += 'w';
                 x = moveUp(avatarLocation, Tileset.AVATAR);
@@ -177,18 +198,78 @@ public class Engine {
                     avatarLocation = x;
                     ter.renderFrame(world);
                 }
-            } else if (i == 'q') {
-                saveWorld(toInsert);
-                //System.out.println(loadWorld());
-                //System.out.println("hi");
-                makeWorld();
-                ter.renderFrame(world);
-                // System.out.println("hi1");
-                System.exit(0);
-                //System.out.println("hi2");
-                break;
+            } else if (i == ':') {
+                while (true) {
+                    if (StdDraw.hasNextKeyTyped()) {
+                        char val = StdDraw.nextKeyTyped();
+                        if (val == 'q' || val == 'Q') {
+                            if (floorTile == Tileset.GRASS) {
+                                toInsert = 'k' + toInsert;
+                            }
+                            saveWorld(toInsert);
+                            makeWorld();
+                            ter.renderFrame(world);
+                            System.exit(0);
+                            break;
+                        }
+                    }
+                }
+
             }
         }
+    }
+
+    private void mouseLocation() {
+
+
+        Point floorWall = new Point((int) StdDraw.mouseX(), (int) StdDraw.mouseY());
+        if (world[floorWall.x][floorWall.y].equals(Tileset.WALL)) {
+            ter.renderFrame(world);
+            StdDraw.enableDoubleBuffering();
+            StdDraw.setPenColor(Color.WHITE);
+            if (!name.equals("")) {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, name + ", that's a wall!" + "        "
+                        + "Press k to turn on/off the lights!");
+            } else {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, "That's a wall!"
+                        + "        Press k to turn on/off the lights!");
+            }
+        } else if (world[floorWall.x][floorWall.y].equals(Tileset.FLOOR)
+                || world[floorWall.x][floorWall.y].equals(Tileset.GRASS)) {
+            ter.renderFrame(world);
+            StdDraw.enableDoubleBuffering();
+            StdDraw.setPenColor(Color.WHITE);
+            if (!name.equals("")) {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, name + ", that's the floor!"
+                        + "        Press k to turn on/off the lights!");
+            } else {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, "That's the floor!"
+                        + "        Press k to turn on/off the lights!");
+            }
+        } else if (world[floorWall.x][floorWall.y].equals(Tileset.NOTHING)) {
+            ter.renderFrame(world);
+            StdDraw.enableDoubleBuffering();
+            StdDraw.setPenColor(Color.WHITE);
+            if (!name.equals("")) {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, name + ", that isn't in our world!"
+                        + "        Press k to turn on/off the lights!");
+            } else {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, "That isn't in our world!"
+                        + "        Press k to turn on/off the lights!");
+            }
+        } else if (world[floorWall.x][floorWall.y].equals(Tileset.AVATAR)) {
+            ter.renderFrame(world);
+            StdDraw.enableDoubleBuffering();
+            StdDraw.setPenColor(Color.WHITE);
+            if (!name.equals("")) {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, name + ", that's you!"
+                        + "        Press k to turn on/off the lights!");
+            } else {
+                StdDraw.text(WIDTH / 2, HEIGHT - 1, "That's you!"
+                        + "        Press k to turn on/off the lights!");
+            }
+        }
+        StdDraw.show();
     }
 
 
@@ -218,7 +299,13 @@ public class Engine {
     public TETile[][] interactWithInputString(String input) {
         makeWorld();
         if (checkForLoad(input)) {
-            interactWithInputString(loadWorld() + input.substring(1));
+            String i = loadWorld();
+            if (i.substring(0, 1).equals("k")) {
+                floorTile = Tileset.GRASS;
+                i = i.substring(1);
+
+            }
+            interactWithInputString(i + input.substring(1));
         } else {
             //inputSeed = input;
 
@@ -238,6 +325,9 @@ public class Engine {
             //flowerLocation = new Point(listOfRooms.get(listOfRooms.size() - 1).p.x,
             //      listOfRooms.get(listOfRooms.size() - 1).p.y);
             moveCharacters(commands);
+            if (floorTile == Tileset.GRASS) {
+                input = 'k' + input;
+            }
             saveWorld(input);
         }
         return world;
@@ -246,6 +336,9 @@ public class Engine {
     private boolean checkForLoad(String i) {
         String i2 = i.substring(0, 1);
         if (i2.equals("l") || i2.equals("L")) {
+            return true;
+        }
+        if (i.substring(1, 2).equals("l") || i.substring(1, 2).equals("L")) {
             return true;
         }
         return false;
@@ -276,7 +369,7 @@ public class Engine {
         int y = rand.nextInt(HEIGHT - height - 2) + 1;
         for (int i = x; i < x + width; i++) {
             for (int j = y; j < y + height; j++) {
-                world[i][j] = Tileset.FLOOR;
+                world[i][j] = floorTile;
             }
         }
         Point p = new Point(x, y);
@@ -302,7 +395,7 @@ public class Engine {
         Point p = new Point(minx.p.x + minx.width, minx.p.y);
         int count = 0;
         for (int i = minx.p.x + minx.width; i <= maxx.p.x; i++) {
-            world[i][minx.p.y] = Tileset.FLOOR;
+            world[i][minx.p.y] = floorTile;
             count++;
         }
         Hallway h = new Hallway(p, count, true);
@@ -320,7 +413,7 @@ public class Engine {
         Point p = new Point(maxx.p.x, miny.p.y);
         int count = 0;
         for (int i = miny.p.y; i < maxy.p.y; i++) {
-            world[maxx.p.x][i] = Tileset.FLOOR;
+            world[maxx.p.x][i] = floorTile;
             count++;
         }
         Hallway h = new Hallway(p, count, false);
@@ -433,8 +526,9 @@ public class Engine {
     private Point moveUp(Point loc, TETile t) {
         Point p = new Point(-1, 0);
         if ((world[loc.x][loc.y + 1]).equals(Tileset.FLOOR)
+                || (world[loc.x][loc.y + 1]).equals(Tileset.GRASS)
                 || (world[loc.x][loc.y + 1]).equals(Tileset.AVATAR)) {
-            world[loc.x][loc.y] = Tileset.FLOOR;
+            world[loc.x][loc.y] = floorTile;
             world[loc.x][loc.y + 1] = t;
             p = new Point(loc.x, loc.y + 1);
         }
@@ -446,8 +540,9 @@ public class Engine {
     private Point moveLeft(Point loc, TETile t) {
         Point p = new Point(-1, 0);
         if ((world[loc.x - 1][loc.y]).equals(Tileset.FLOOR)
+                || (world[loc.x - 1][loc.y]).equals(Tileset.GRASS)
                 || (world[loc.x - 1][loc.y]).equals(Tileset.AVATAR)) {
-            world[loc.x][loc.y] = Tileset.FLOOR;
+            world[loc.x][loc.y] = floorTile;
             world[loc.x - 1][loc.y] = t;
             p = new Point(loc.x - 1, loc.y);
         }
@@ -459,8 +554,9 @@ public class Engine {
     private Point moveDown(Point loc, TETile t) {
         Point p = new Point(-1, 0);
         if ((world[loc.x][loc.y - 1]).equals(Tileset.FLOOR)
+                || (world[loc.x][loc.y - 1]).equals(Tileset.GRASS)
                 || (world[loc.x][loc.y - 1]).equals(Tileset.AVATAR)) {
-            world[loc.x][loc.y] = Tileset.FLOOR;
+            world[loc.x][loc.y] = floorTile;
             world[loc.x][loc.y - 1] = t;
             p = new Point(loc.x, loc.y - 1);
         }
@@ -471,8 +567,9 @@ public class Engine {
     private Point moveRight(Point loc, TETile t) {
         Point p = new Point(-1, 0);
         if ((world[loc.x + 1][loc.y]).equals(Tileset.FLOOR)
+                || (world[loc.x + 1][loc.y]).equals(Tileset.GRASS)
                 || (world[loc.x + 1][loc.y]).equals(Tileset.AVATAR)) {
-            world[loc.x][loc.y] = Tileset.FLOOR;
+            world[loc.x][loc.y] = floorTile;
             world[loc.x + 1][loc.y] = t;
             p = new Point(loc.x + 1, loc.y);
         }
@@ -524,91 +621,6 @@ public class Engine {
             System.exit(0);
         }
     }
-
-    /**private void chaseDirection() {
-     if (win) {
-     Point i;
-     if ((avatarLocation.x == flowerLocation.x) && (avatarLocation.y == flowerLocation.x)) {
-     win = false;
-     } else if ((avatarLocation.x > flowerLocation.x)
-     && (avatarLocation.y > flowerLocation.y)) {
-     i = moveRight(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     i = moveUp(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     } else if ((avatarLocation.x > flowerLocation.x)
-     && (avatarLocation.y < flowerLocation.y)) {
-     i = moveRight(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     i = moveDown(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     } else if ((avatarLocation.x < flowerLocation.x)
-     && (avatarLocation.y > flowerLocation.y)) {
-     i = moveLeft(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     i = moveUp(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     } else if ((avatarLocation.x < flowerLocation.x)
-     && (avatarLocation.y < flowerLocation.y)) {
-     i = moveLeft(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     i = moveDown(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     } else if ((avatarLocation.x < flowerLocation.x)) {
-     i = moveLeft(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     } else if ((avatarLocation.x > flowerLocation.x)) {
-     i = moveRight(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     } else if ((avatarLocation.y < flowerLocation.y)) {
-     i = moveDown(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     } else if ((avatarLocation.y > flowerLocation.y)) {
-     i = moveUp(flowerLocation, Tileset.FLOWER);
-     if (i.x != -1) {
-     flowerLocation = i;
-     }
-     }
-     }
-     }*/
-
-    /**private void winOrLose(boolean winLose) {
-     PointerInfo cursor = MouseInfo.getPointerInfo();
-     Point floor_or_wall = cursor.getLocation();
-     System.out.print(floor_or_wall);
-     while (winLose) {
-     if (world[floor_or_wall.x][floor_or_wall.y].equals(Tileset.WALL)) {
-     //display wall
-     } else if (world[floor_or_wall.x][floor_or_wall.y].equals(Tileset.FLOOR)) {
-     //display floor
-     }
-     }
-     if (!(winLose)) {
-     //we have to quit game and display game over
-     }
-     }*/
 
 
 }
