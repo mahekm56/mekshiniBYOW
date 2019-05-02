@@ -12,6 +12,13 @@ import java.awt.Color;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 
 
 public class Engine {
@@ -28,8 +35,10 @@ public class Engine {
     Room maxy;
     Point avatarLocation;
     Boolean win = true;
-    Point flowerLocation;
+    //Point flowerLocation;
+    String toInsert = "";
     String inputSeed;
+
 
 
     /**
@@ -37,10 +46,87 @@ public class Engine {
      * including inputs from the main menu.
      */
     public void interactWithKeyboard() {
-
         StdDraw.setCanvasSize(WIDTH * 16, HEIGHT * 16);
         StdDraw.setXscale(0, WIDTH);
         StdDraw.setYscale(0, HEIGHT);
+        createMenu();
+        StdDraw.enableDoubleBuffering();
+
+        while (true) {
+
+            if (StdDraw.hasNextKeyTyped()) {
+
+                char input = Character.toUpperCase(StdDraw.nextKeyTyped());
+                if (input == 'l' || input == 'L') {
+                    toInsert = loadWorld();
+                    interactWithInputString(toInsert);
+                    ter.renderFrame(world);
+                    startCommands();
+                }
+
+
+                if (input == 'n' || input == 'N') {
+                    toInsert += 'n';
+
+
+                    StdDraw.enableDoubleBuffering();
+                    StdDraw.clear(Color.BLACK);
+                    StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a seed: " + toInsert);
+                    StdDraw.show();
+                    while (true) {
+                        if (!StdDraw.hasNextKeyTyped()) {
+                            continue;
+                        }
+                        char c = StdDraw.nextKeyTyped();
+                        if (c == 's' || c == 'S') {
+                            toInsert += 's';
+                            StdDraw.enableDoubleBuffering();
+                            StdDraw.clear(Color.BLACK);
+                            StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a seed: " + toInsert);
+                            StdDraw.show();
+                            interactWithInputString(toInsert);
+                            ter.renderFrame(world);
+                            startCommands();
+                            break;
+
+                        }
+                        if (c != 'n' || c != 'N') {
+
+                            toInsert += c;
+                            StdDraw.enableDoubleBuffering();
+                            StdDraw.clear(Color.BLACK);
+                            StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a seed: " + toInsert);
+                            StdDraw.show();
+                        }
+                    }
+                }
+                        if (input == 'l' || input == 'L') {
+                            toInsert = loadWorld();
+                            interactWithInputString(toInsert);
+                            ter.renderFrame(world);
+                            startCommands();
+                        }
+                        /**if (input == 'q' || input == 'Q') {
+
+                            saveWorld(toInsert);
+                            //System.out.println("hi");
+                            makeWorld();
+                            ter.renderFrame(world);
+                           // System.out.println("hi1");
+                            System.exit(0);
+                            //System.out.println("hi2");
+                            break;
+                        }*/
+
+                    }
+                }
+
+
+
+
+    }
+
+    private void createMenu() {
         StdDraw.clear(new Color(0, 0, 0));
         StdDraw.disableDoubleBuffering();
         StdDraw.show();
@@ -52,54 +138,7 @@ public class Engine {
         StdDraw.setFont(mainM);
         StdDraw.text(WIDTH / 2, HEIGHT * 5.5 / 10, "New Game (N)");
         StdDraw.text(WIDTH / 2, HEIGHT * 4.5 / 10, "Load Game (L)");
-        StdDraw.text(WIDTH / 2, HEIGHT * 3.5 / 10, "Quit (Q");
-        //;StdDraw.clear(Color.BLACK);
-
-        String toInsert = "";
-
-        while (true) {
-
-            if (StdDraw.hasNextKeyTyped()) {
-                //continue;
-
-
-                char input = StdDraw.nextKeyTyped();
-
-                if (input == 'n' || input == 'N') {
-                    toInsert = toInsert + 'n';
-                    StdDraw.clear(Color.BLACK);
-                    StdDraw.text(WIDTH / 2, HEIGHT * 2 / 3, "Enter a seed");
-
-                    char inp = 'n';
-                    String seedString = "n";
-                    while (inp != 's') {
-                        if (!StdDraw.hasNextKeyTyped()) {
-                            continue;
-                        }
-                        inp = StdDraw.nextKeyTyped();
-                        if (inp == 's') {
-                            long seed = Long.parseLong(seedString);
-                            String i = seed + "s";
-                            world = interactWithInputString(i);
-                            ter.initialize(WIDTH, HEIGHT);
-                            //ter.renderFrame(world);
-                            startCommands();
-                        } else {
-                            seedString += inp;
-                        }
-                    }
-
-                } else if (input == 'l' || input == 'L') {
-                    //load saved world
-                    //continue playing
-                    startCommands();
-                } else if (input == 'q' || input == 'Q') {
-                    System.exit(0);
-                }
-
-            }
-        }
-
+        StdDraw.text(WIDTH / 2, HEIGHT * 3.5 / 10, "Quit (Q)");
     }
 
     private void startCommands() {
@@ -109,28 +148,55 @@ public class Engine {
             }
 
             char i = StdDraw.nextKeyTyped();
+            Point x;
             if (i == 'W' || i == 'w') {
-                //toInsert = toInsert + 'w';
-                avatarLocation = moveUp(avatarLocation, Tileset.AVATAR);
-                //ter.renderFrame(world);
+                toInsert += 'w';
+                x = moveUp(avatarLocation, Tileset.AVATAR);
+                if (x.x != -1) {
+                    avatarLocation = x;
+                    ter.renderFrame(world);
+                }
+
             }
-            if (i == 'a' || i == 'A') {
-                //toInsert = toInsert + 'a';
-                avatarLocation = moveLeft(avatarLocation, Tileset.AVATAR);
-                //ter.renderFrame(world);
+            else if (i == 'a' || i == 'A') {
+                toInsert += 'a';
+                x = moveLeft(avatarLocation, Tileset.AVATAR);
+                if (x.x != -1) {
+                    avatarLocation = x;
+                    ter.renderFrame(world);
+                }
+
             }
-            if (i == 's' || i == 'S') {
-                //toInsert = toInsert + 'w';
-                avatarLocation = moveDown(avatarLocation, Tileset.AVATAR);
-                //ter.renderFrame(world);
+            else if (i == 's' || i == 'S') {
+                toInsert += 's';
+                x = moveDown(avatarLocation, Tileset.AVATAR);
+                if (x.x != -1) {
+                    avatarLocation = x;
+                    ter.renderFrame(world);
+                }
+
             }
-            if (i == 'd' || i == 'D') {
-                //toInsert = toInsert + 'w';
-                avatarLocation = moveRight(avatarLocation, Tileset.AVATAR);
-                //ter.renderFrame(world);
+            else if (i == 'd' || i == 'D') {
+                toInsert += 'd';
+                x = moveRight(avatarLocation, Tileset.AVATAR);
+                if (x.x != -1) {
+                    avatarLocation = x;
+                    ter.renderFrame(world);
+                }
+            }
+
+            else if (i == 'q') {
+                saveWorld(toInsert);
+                //System.out.println(loadWorld());
+                //System.out.println("hi");
+                makeWorld();
+                ter.renderFrame(world);
+                // System.out.println("hi1");
+                System.exit(0);
+                //System.out.println("hi2");
+                break;
             }
         }
-
     }
 
 
@@ -159,10 +225,11 @@ public class Engine {
     // @Source - lab12
     public TETile[][] interactWithInputString(String input) {
         makeWorld();
-        if (checkForLoad(input)) {
-            interactWithInputString(inputSeed);
-        } else {
+        //if (checkForLoad(input)) {
+           // interactWithInputString(inputSeed + input.substring(1));
+        //} else {
             inputSeed = input;
+
             String seed = input.substring(1, input.indexOf('s'));
             Long seedVal = Long.parseLong(seed);
             String commands = input.substring(input.indexOf('s') + 1);
@@ -172,14 +239,14 @@ public class Engine {
             createWalls();
             world[listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)][listOfRooms.get(0).p.y
                     + ((listOfRooms.get(0).height) / 2)] = Tileset.AVATAR;
-            world[listOfRooms.get(listOfRooms.size() - 1).p.x]
-                    [listOfRooms.get(listOfRooms.size() - 1).p.y] = Tileset.FLOWER;
+            //world[listOfRooms.get(listOfRooms.size() - 1).p.x]
+              //      [listOfRooms.get(listOfRooms.size() - 1).p.y] = Tileset.FLOWER;
             avatarLocation = new Point((listOfRooms.get(0).p.x + ((listOfRooms.get(0).width) / 2)),
                     listOfRooms.get(0).p.y + ((listOfRooms.get(0).height) / 2));
-            flowerLocation = new Point(listOfRooms.get(listOfRooms.size() - 1).p.x,
-                    listOfRooms.get(listOfRooms.size() - 1).p.y);
+            //flowerLocation = new Point(listOfRooms.get(listOfRooms.size() - 1).p.x,
+              //      listOfRooms.get(listOfRooms.size() - 1).p.y);
             moveCharacters(commands);
-        }
+        //}
         return world;
     }
 
@@ -339,28 +406,28 @@ public class Engine {
                     if (x.x != -1) {
                         avatarLocation = x;
                     }
-                    chaseDirection();
+                    //chaseDirection();
                 }
                 if (c.charAt(i) == 'a') {
                     x = moveLeft(avatarLocation, Tileset.AVATAR);
                     if (x.x != -1) {
                         avatarLocation = x;
                     }
-                    chaseDirection();
+                    //chaseDirection();
                 }
                 if (c.charAt(i) == 's') {
                     x = moveDown(avatarLocation, Tileset.AVATAR);
                     if (x.x != -1) {
                         avatarLocation = x;
                     }
-                    chaseDirection();
+                    //chaseDirection();
                 }
                 if (c.charAt(i) == 'd') {
                     x = moveRight(avatarLocation, Tileset.AVATAR);
                     if (x.x != -1) {
                         avatarLocation = x;
                     }
-                    chaseDirection();
+                    //chaseDirection();
                 }
             }
 
@@ -418,8 +485,51 @@ public class Engine {
         //ter.renderFrame(world);
         return p;
     }
+    // @Source SaveDemo
+    private String loadWorld(){
+        File f = new File("./previousCodes.txt");
+        if (f.exists()) {
+            try {
+                FileInputStream fs = new FileInputStream(f);
+                ObjectInputStream os = new ObjectInputStream(fs);
+                return (String) os.readObject();
+            } catch (FileNotFoundException e) {
+                System.out.println("file not found");
+                System.exit(0);
+            } catch (IOException e) {
+                System.out.println(e);
+                System.exit(0);
+            } catch (ClassNotFoundException e) {
+                System.out.println("class not found");
+                System.exit(0);
+            }
+        }
+        /* In the case no World has been saved yet, we return a new one. */
+        StdDraw.clear(StdDraw.BLACK);
+        System.exit(0);
+        return "";
 
-    private void chaseDirection() {
+    }
+    // @Source SaveDemo
+    private static void saveWorld(String seedv) {
+        File f = new File("./previousCodes.txt");
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            FileOutputStream fs = new FileOutputStream(f);
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(seedv);
+        }  catch (FileNotFoundException e) {
+            System.out.println("file not found");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e);
+            System.exit(0);
+        }
+    }
+
+    /**private void chaseDirection() {
         if (win) {
             Point i;
             if ((avatarLocation.x == flowerLocation.x) && (avatarLocation.y == flowerLocation.x)) {
@@ -486,7 +596,7 @@ public class Engine {
                 }
             }
         }
-    }
+    }*/
 
     /**private void winOrLose(boolean winLose) {
      PointerInfo cursor = MouseInfo.getPointerInfo();
